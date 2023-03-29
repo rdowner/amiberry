@@ -5,7 +5,7 @@
 *
 * Copyright 1995-2002 Bernd Schmidt
 * Copyright 1995 Alessandro Bissacco
-* Copyright 2000-2021 Toni Wilen
+* Copyright 2000-2023 Toni Wilen
 */
 
 #include "sysconfig.h"
@@ -6853,7 +6853,7 @@ static void init_hz(bool checkvposw)
 		}
 	}
 
-	if (maxvpos_display_vsync < 0) {
+	if (maxvpos_display_vsync <= 0) {
 		maxvpos_display_vsync = 0;
 	}
 
@@ -6876,9 +6876,6 @@ static void init_hz(bool checkvposw)
 	if (beamcon0 & bemcon0_vsync_mask) {
 		if (maxvpos_display_vsync >= vsstrt + 3) {
 			maxvpos_display_vsync = vsstrt + 3;
-		}
-		if (maxvpos_display_vsync < 0) {
-			maxvpos_display_vsync = 0;
 		}
 		if (minfirstline < vsync_startline) {
 			minfirstline = vsync_startline;
@@ -6913,6 +6910,21 @@ static void init_hz(bool checkvposw)
 		vpos_count = maxvpos_nom;
 		vpos_count_diff = maxvpos_nom;
 		hzc = 1;
+	}
+
+	// exclude possible extra lines that are inside vertical blank
+	if (currprefs.gfx_overscanmode < OVERSCANMODE_EXTREME) {
+		if (beamcon0 & BEAMCON0_VARBEAMEN) {
+			if (firstblankedline < maxvpos / 2 && maxvpos_display_vsync > firstblankedline) {
+				maxvpos_display_vsync = firstblankedline;
+			} else if (firstblankedline <= maxvpos) {
+				maxvpos_display_vsync = 1;
+			}
+		}
+	}
+
+	if (maxvpos_display_vsync <= 0) {
+		maxvpos_display_vsync = 1;
 	}
 
 	if (maxvpos_nom >= MAXVPOS) {

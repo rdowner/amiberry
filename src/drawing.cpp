@@ -634,7 +634,7 @@ int get_vertical_visible_height(bool useoldsize)
 	if (interlace_seen && currprefs.gfx_vresolution > 0) {
 		h -= 1 << (currprefs.gfx_vresolution - 1);
 	}
-	if (syncdebug) {
+	if (!syncdebug) {
 		bool hardwired = true;
 		if (ecs_agnus) {
 			hardwired = (new_beamcon0 & BEAMCON0_VARVBEN) == 0;
@@ -1187,7 +1187,7 @@ static void set_res_shift(void)
 /* Initialize the variables necessary for drawing a line.
 * This involves setting up start/stop positions and display window
 * borders.  */
-static void pfield_init_linetoscr (int lineno, bool border)
+static void pfield_init_linetoscr (bool border)
 {
 	/* First, get data fetch start/stop in DIW coordinates.  */
 	int ddf_left = dp_for_drawing->plfleft + DIW_DDF_OFFSET - DDF_OFFSET;
@@ -1613,6 +1613,9 @@ static void pfield_do_darken_line(int start, int stop, int vp)
 		if (hsync_debug) {
 			c0 = 0x831;
 			c1 = 0x000;
+		}
+		if (hcenter_debug && currprefs.gfx_overscanmode > OVERSCANMODE_ULTRA) {
+			c0 = 0x381;
 		}
 	}
 	if (!trans) {
@@ -2740,13 +2743,6 @@ static void decode_ham(int pix, int stoppos, int blank)
 static void decode_ham_border(int pix, int stoppos, int blank)
 {
 	ham_lastcolor = color_reg_get(&colors_for_drawing, 0);
-	if (pix >= stoppos) {
-		return;
-	}
-	// HAM decoding starts 1 pixel early
-	int todraw_amiga = res_shift_from_window(stoppos - pix) - 1;
-	int hdp = ham_decode_pixel + todraw_amiga;
-	decode_ham_pixel(hdp);
 }
 
 static void erase_ham_right_border(int pix, int stoppos, bool blank)
@@ -3702,7 +3698,7 @@ static void do_color_changes(line_draw_func worker_border, line_draw_func worker
 			}
 		}
 
-		if (i < dip_for_drawing->last_color_change) {
+		if (i != dip_for_drawing->last_color_change) {
 			if (regno >= RECORDED_REGISTER_CHANGE_OFFSET) {
 				pfield_expand_dp_bplconx(regno, value, nextpos, vp);
 			} else if (regno >= 0 && !(value & COLOR_CHANGE_MASK)) {
@@ -3949,7 +3945,7 @@ static void pfield_draw_line(struct vidbuffer *vb, int lineno, int gfx_ypos, int
 		if (dp_for_drawing->bordersprite_seen && !ce_is_borderblank(colors_for_drawing.extra) && dip_for_drawing->nr_sprites) {
 			dosprites = true;
 			pfield_expand_dp_bplcon();
-			pfield_init_linetoscr(lineno, true);
+			pfield_init_linetoscr(true);
 			pfield_erase_vborder_sprites();
 		}
 #endif

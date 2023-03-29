@@ -3851,7 +3851,7 @@ static void pfield_draw_line(struct vidbuffer *vb, int lineno, int gfx_ypos, int
 		pfield_expand_dp_bplcon();
 		// must be after pfield_expand_dp_bplcon
 		adjust_drawing_colors(dp_for_drawing->ctable, dp_for_drawing->ham_seen || bplehb || ecsshres, true);
-		pfield_init_linetoscr(lineno, false);
+		pfield_init_linetoscr(false);
 		pfield_doline(lineno);
 
 		/* The problem is that we must call decode_ham() BEFORE we do the sprites. */

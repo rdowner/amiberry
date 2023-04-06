@@ -281,7 +281,7 @@ static bool get_trace (uaecptr addr, int accessmode, int size, uae_u32 *data)
 		struct cputracememory *ctm = &cputrace.ctm[i];
 		if (ctm->addr == addr && ctm->mode == mode) {
 			ctm->mode = 0;
-			write_log (_T("CPU trace: GET %d: PC=%08x %08x=%08x %d %d %08x/%08x/%08x %d/%d (%08x)\n"),
+			write_log(_T("CPU trace: GET %d: PC=%08x %08x=%08x %d %d %08x/%08x/%08x %d/%d (%08x)\n"),
 				i, cputrace.pc, addr, ctm->data, accessmode, size,
 				cputrace.cyclecounter, cputrace.cyclecounter_pre, cputrace.cyclecounter_post,
 				cputrace.readcounter, cputrace.writecounter, get_cycles ());
@@ -300,7 +300,7 @@ static bool get_trace (uaecptr addr, int accessmode, int size, uae_u32 *data)
 					return true; // argh, need to rerun the memory access..
 				}
 			}
-			check_trace ();
+			check_trace();
 			*data = ctm->data;
 			return false;
 		}
@@ -308,14 +308,16 @@ static bool get_trace (uaecptr addr, int accessmode, int size, uae_u32 *data)
 	if (cputrace.cyclecounter_post) {
 		int c = cputrace.cyclecounter_post;
 		cputrace.cyclecounter_post = 0;
-		check_trace ();
-		x_do_cycles (c);
+		check_trace();
+		x_do_cycles(c);
 		return false;
 	}
-	gui_message (_T("CPU trace: GET %08x %d %d NOT FOUND!\n"), addr, accessmode, size);
-	check_trace ();
+	if (cputrace.memoryoffset > 0 || cputrace.cyclecounter_pre) {
+		gui_message(_T("CPU trace: GET %08x %d %d NOT FOUND!\n"), addr, accessmode, size);
+	}
+	check_trace();
 	*data = 0;
-	return false;
+	return true;
 }
 
 static uae_u32 cputracefunc_x_next_iword (void)

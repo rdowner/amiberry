@@ -80,6 +80,11 @@ ifneq (,$(findstring rpi4,$(PLATFORM)))
 	CPUFLAGS = -mcpu=cortex-a72 -mfpu=neon-fp-armv8
 endif
 
+# Raspberry 5 CPU flags
+ifneq (,$(findstring rpi5,$(PLATFORM)))
+     CPUFLAGS = -mcpu=cortex-a76 -mfpu=neon-fp-armv8
+endif
+
 # Mac OS X M1 CPU flags
 ifneq (,$(findstring osx-m1,$(PLATFORM)))
 	CPUFLAGS=-mcpu=apple-m1
@@ -105,10 +110,10 @@ ifeq ($(PLATFORM),$(filter $(PLATFORM),rpi1 rpi2 rpi3 rpi4))
 #
 # SDL2 targets
 #
-# Raspberry Pi 1/2/3/4 (SDL2)
-else ifeq ($(PLATFORM),$(filter $(PLATFORM),rpi1-sdl2 rpi2-sdl2 rpi3-sdl2 rpi4-sdl2))
+# Raspberry Pi 1/2/3/4/5 (SDL2)
+else ifeq ($(PLATFORM),$(filter $(PLATFORM),rpi1-sdl2 rpi2-sdl2 rpi3-sdl2 rpi4-sdl2 rpi5-sdl2))
 	CPPFLAGS += $(CPPFLAGS32)
-	ifeq ($(PLATFORM),$(filter $(PLATFORM), rpi2-sdl2 rpi3-sdl2 rpi4-sdl2))
+	ifeq ($(PLATFORM),$(filter $(PLATFORM), rpi2-sdl2 rpi3-sdl2 rpi4-sdl2 rpi5-sdl2))
 	   CPPFLAGS += $(NEON_FLAGS)
 	   HAVE_NEON = 1
 	endif
@@ -185,6 +190,12 @@ else ifeq ($(PLATFORM),rpi4-64-dmx)
 	LDFLAGS += $(DISPMANX_LDFLAGS)
 	AARCH64 = 1
 
+# Raspberry Pi 5 (SDL2 64-bit)
+else ifeq ($(PLATFORM),rpi5-64-sdl2)
+     CPUFLAGS = -mcpu=cortex-a76
+     CPPFLAGS += $(CPPFLAGS64)
+     AARCH64 = 1
+
 # Vero 4k (SDL2)
 else ifeq ($(PLATFORM),vero4k)
 	CPUFLAGS = -mcpu=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard
@@ -247,6 +258,11 @@ else ifeq ($(PLATFORM),a64)
 # Generic EXPERIMENTAL x86-64 target
 else ifeq ($(PLATFORM),x86-64)
 	CPPFLAGS += -DUSE_RENDER_THREAD
+
+# Generic EXPERIMENTAL riscv64 target
+else ifeq ($(PLATFORM),riscv64)
+	# USE_RENDER_THREAD fails under sway on VisionFive2
+	# CPPFLAGS += -DUSE_RENDER_THREAD
 
 # RK3588 e.g. RockPi 5
 else ifeq ($(PLATFORM),rk3588)
@@ -598,6 +614,8 @@ OBJS += src/osdep/aarch64_helper_osx.o
 else ifeq ($(PLATFORM),$(filter $(PLATFORM),osx-x86))
 	USE_JIT = 0
 else ifeq ($(PLATFORM),$(filter $(PLATFORM),x86-64))
+	USE_JIT = 0
+else ifeq ($(PLATFORM),$(filter $(PLATFORM),riscv64))
 	USE_JIT = 0
 else
 OBJS += src/osdep/neon_helper.o

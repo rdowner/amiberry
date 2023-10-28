@@ -2936,11 +2936,11 @@ void cfgfile_save_options (struct zfile *f, struct uae_prefs *p, int type)
 		: p->keyboard_lang == KBD_LANG_IT ? _T("it")
 		: _T("FOO")));
 
-	cfgfile_dwrite(f, _T("state_replay_rate"), _T("%d"), p->statecapturerate);
-	cfgfile_dwrite(f, _T("state_replay_buffers"), _T("%d"), p->statecapturebuffersize);
-	cfgfile_dwrite_bool(f, _T("state_replay_autoplay"), p->inprec_autoplay);
-	cfgfile_dwrite_bool(f, _T("warp"), p->turbo_emulation);
-	cfgfile_dwrite(f, _T("warp_limit"), _T("%d"), p->turbo_emulation_limit);
+	cfgfile_dwrite (f, _T("state_replay_rate"), _T("%d"), p->statecapturerate);
+	cfgfile_dwrite (f, _T("state_replay_buffers"), _T("%d"), p->statecapturebuffersize);
+	cfgfile_dwrite_bool (f, _T("state_replay_autoplay"), p->inprec_autoplay);
+	cfgfile_dwrite_bool (f, _T("warp"), p->turbo_emulation);
+	cfgfile_dwrite (f, _T("warp_limit"), _T("%d"), p->turbo_emulation_limit);
 	cfgfile_dwrite_bool(f, _T("warpboot"), p->turbo_boot);
 	cfgfile_dwrite(f, _T("warpboot_delay"), _T("%d"), p->turbo_boot_delay);
 
